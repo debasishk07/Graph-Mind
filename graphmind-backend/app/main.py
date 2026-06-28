@@ -6,7 +6,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from app.config import get_settings
 from app.database import init_db
-from app.routers import auth, repositories
+from app.routers import auth, repositories, graph, analysis, chat
 from app.workers.celery_app import celery_app
 from app.utils.socketio import socketio_asgi_app
 
@@ -69,6 +69,9 @@ async def health_check():
 # Include routers
 app.include_router(auth.router, prefix="/api/v1/auth", tags=["auth"])
 app.include_router(repositories.router, prefix="/api/v1/repositories", tags=["repositories"])
+app.include_router(graph.router, prefix="/api/v1/graph", tags=["graph"])
+app.include_router(analysis.router, prefix="/api/v1/analysis", tags=["analysis"])
+app.include_router(chat.router, prefix="/api/v1/chat", tags=["chat"])
 
 # Celery app for monitoring
 app.celery_app = celery_app
