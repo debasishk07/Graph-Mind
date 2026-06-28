@@ -9,7 +9,7 @@ celery_app = Celery(
     "graphmind",
     broker=settings.celery_broker_url,
     backend=settings.celery_result_backend,
-    include=["app.workers.parse_worker", "app.workers.embedding_worker"],
+    include=["app.workers.parse_worker", "app.workers.embedding_worker", "app.workers.analysis_worker", "app.workers.maintenance_worker"],
 )
 
 # Celery Configuration

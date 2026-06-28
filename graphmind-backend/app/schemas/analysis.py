@@ -1,9 +1,6 @@
-from datetime import datetime
-from typing import Optional
+from typing import List, Optional
 from uuid import UUID
-
 from pydantic import BaseModel, Field
-
 
 class GraphNodeMetrics(BaseModel):
     dependency_count: int = 0
@@ -12,21 +9,19 @@ class GraphNodeMetrics(BaseModel):
     complexity: Optional[float] = None
     line_count: int = 0
 
-
 class GraphNodeFlags(BaseModel):
     is_dead_code: bool = False
     has_circular_dep: bool = False
     is_entry_point: bool = False
-
 
 class GraphNode(BaseModel):
     id: str
     label: str
     type: str
     file_path: str
+    qualified_name: Optional[str] = None
     metrics: GraphNodeMetrics
     flags: GraphNodeFlags
-
 
 class GraphEdge(BaseModel):
     id: str
@@ -35,13 +30,11 @@ class GraphEdge(BaseModel):
     type: str
     weight: int = 1
 
-
 class GraphResponse(BaseModel):
-    nodes: list[GraphNode]
-    edges: list[GraphEdge]
-    circular_cycles: list[list[str]] = []
+    nodes: List[GraphNode]
+    edges: List[GraphEdge]
+    circular_cycles: List[List[str]] = []
     stats: dict
-
 
 class GraphNodeDetail(BaseModel):
     id: str
@@ -53,43 +46,35 @@ class GraphNodeDetail(BaseModel):
     docstring: Optional[str] = None
     metrics: GraphNodeMetrics
     flags: GraphNodeFlags
-    dependencies: list[GraphNode] = []
-    dependents: list[GraphNode] = []
-
+    dependencies: List[GraphNode] = []
+    dependents: List[GraphNode] = []
 
 class PathResponse(BaseModel):
-    path: list[str]
+    path: List[str]
     distance: int
-
 
 class ImpactAnalysisResponse(BaseModel):
     symbol_id: str
     risk_score: float
     risk_level: str
-    directly_affected: list[str]
-    all_affected: list[str]
-    affected_routes: list[str]
-    affected_files: list[str]
-    critical_paths: dict[str, list[str]]
-    summary_text: str
-
+    directly_affected: List[str]
+    all_affected: List[str]
+    affected_routes: List[str]
+    affected_files: List[str]
+    critical_paths: dict
+    summary: str
 
 class DeadCodeReport(BaseModel):
-    dead_functions: list[GraphNode]
-    dead_classes: list[GraphNode]
-    dead_files: list[GraphNode]
-    circular_cycles: list[list[str]]
+    dead_functions: List[GraphNode]
+    dead_classes: List[GraphNode]
+    dead_files: List[GraphNode]
+    circular_cycles: List[List[str]]
     estimated_removal_savings: int
 
-
 class RepositorySummary(BaseModel):
-    stats: RepositoryStats
-    ai_narrative: str
+    statistics: dict
     architecture_type: str
-    key_modules: list[str]
-    key_observations: list[str]
-    technology_stack: list[str]
-
+    key_modules: List[str]
 
 class RepositoryStats(BaseModel):
     total_files: int
@@ -101,14 +86,13 @@ class RepositoryStats(BaseModel):
     circular_dep_count: int
     dead_code_count: int
     entry_points: int
-    most_depended_on: list[dict]
-    most_complex: list[dict]
-
+    most_depended_on: List[dict]
+    most_complex: List[dict]
 
 class RefactoringIssue(BaseModel):
     id: str
-    type: str  # god_class | high_coupling | long_method | low_cohesion
-    severity: str  # critical | high | medium | low
+    type: str
+    severity: str
     symbol_id: str
     symbol_name: str
     file_path: str
@@ -116,18 +100,26 @@ class RefactoringIssue(BaseModel):
     ai_explanation: Optional[str] = None
     ai_suggestion: Optional[str] = None
 
-
 class RefactoringReport(BaseModel):
-    issues: list[RefactoringIssue]
+    issues: List[RefactoringIssue]
     summary: str
-
 
 class AnalysisReportResponse(BaseModel):
     id: UUID
     repository_id: UUID
     report_type: str
     content: dict
-    generated_at: datetime
-
+    generated_at: str
     class Config:
         from_attributes = True
+
+class ChatRequest(BaseModel):
+    message: str
+    user_id: UUID
+
+class ChatResponse(BaseModel):
+    message: str
+    context_symbols: List[str] = []
+
+class ChatHistoryResponse(BaseModel):
+    messages: List[dict]
